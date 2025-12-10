@@ -6,7 +6,8 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,CircularProgress,
+  TableHead,
+  CircularProgress,
   TableRow,
   TablePagination,
   TextField,
@@ -28,18 +29,18 @@ import {
   Avatar,
   InputAdornment,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Search as SearchIcon,
-  Sync as SyncIcon,
-  AccountBalance as LedgerIcon,
-  Warning as WarningIcon,
-  ArrowUpward,
-  ArrowDownward,CheckCircleIcon,
-  FilterList as FilterIcon,
-} from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
+import SyncIcon from '@mui/icons-material/Sync';
+import LedgerIcon from '@mui/icons-material/AccountBalance';
+import WarningIcon from '@mui/icons-material/Warning';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import FilterIcon from '@mui/icons-material/FilterList';
+
 import MainLayout from '../Layout/MainLayout';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -102,13 +103,11 @@ const Ledgers = () => {
   const handleAddLedger = async (data) => {
     try {
       const response = await api.post('/tally/ledgers', data);
-      
       if (response.data.tallySync && !response.data.tallySync.success) {
         toast.error(`Ledger saved locally but Tally sync failed: ${response.data.tallySync.message}`);
       } else {
         toast.success('Ledger created and synced with Tally successfully');
       }
-      
       setOpenForm(false);
       fetchLedgers();
     } catch (error) {
@@ -118,7 +117,6 @@ const Ledgers = () => {
 
   const handleDeleteLedger = async () => {
     if (!ledgerToDelete) return;
-    
     try {
       await api.delete(`/tally/ledgers/${ledgerToDelete.id}`);
       toast.success('Ledger deleted successfully');
@@ -130,22 +128,14 @@ const Ledgers = () => {
     }
   };
 
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
-
+  const handlePageChange = (event, newPage) => setPage(newPage);
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const getBalanceColor = (balance) => {
-    return balance >= 0 ? 'success.main' : 'error.main';
-  };
-
-  const getBalanceIcon = (balance) => {
-    return balance >= 0 ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />;
-  };
+  const getBalanceColor = (balance) => (balance >= 0 ? 'success.main' : 'error.main');
+  const getBalanceIcon = (balance) => (balance >= 0 ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />);
 
   const isAdmin = user?.role === 'admin';
   const isAccountant = user?.role === 'accountant';
@@ -156,14 +146,14 @@ const Ledgers = () => {
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           Ledger Management
         </Typography>
-        
+
         {!isAdmin && !isAccountant && (
           <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
             <strong>Analyst Access:</strong> You can view ledgers but cannot create, edit, or delete them.
             Contact an administrator for write permissions.
           </Alert>
         )}
-        
+
         <Card sx={{ mb: 3, background: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)', color: 'white' }}>
           <CardContent>
             <Grid container alignItems="center" justifyContent="space-between">
@@ -189,7 +179,7 @@ const Ledgers = () => {
                   startIcon={<SyncIcon />}
                   onClick={handleSyncLedgers}
                   disabled={syncing}
-                  sx={{ 
+                  sx={{
                     background: 'white',
                     color: 'primary.main',
                     '&:hover': { background: 'rgba(255,255,255,0.9)' }
@@ -290,10 +280,10 @@ const Ledgers = () => {
                   <TableCell colSpan={isAdmin || isAccountant ? 6 : 5} align="center">
                     <Box py={6} textAlign="center">
                       <LedgerIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2, opacity: 0.5 }} />
-                      <Typography color="text.secondary">
+                      <Typography color="text.secondary" component="div">
                         No ledgers found
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="text.secondary" component="div">
                         Try syncing from Tally or creating a new ledger
                       </Typography>
                     </Box>
@@ -301,10 +291,10 @@ const Ledgers = () => {
                 </TableRow>
               ) : (
                 ledgers.map((ledger) => (
-                  <TableRow 
-                    key={ledger.id} 
+                  <TableRow
+                    key={ledger.id}
                     hover
-                    sx={{ 
+                    sx={{
                       '&:hover': { bgcolor: 'action.hover' },
                       borderBottom: '1px solid',
                       borderColor: 'divider'
@@ -316,9 +306,9 @@ const Ledgers = () => {
                           {ledger.ledger_name.charAt(0).toUpperCase()}
                         </Avatar>
                         <Box>
-                          <Typography fontWeight="medium">{ledger.ledger_name}</Typography>
+                          <Typography fontWeight="medium" component="div">{ledger.ledger_name}</Typography>
                           {ledger.email && (
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography variant="caption" color="text.secondary" component="div">
                               {ledger.email}
                             </Typography>
                           )}
@@ -326,9 +316,9 @@ const Ledgers = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        label={ledger.parent_group} 
-                        size="small" 
+                      <Chip
+                        label={ledger.parent_group}
+                        size="small"
                         color="primary"
                         variant="outlined"
                         sx={{ borderRadius: 1 }}
@@ -337,13 +327,14 @@ const Ledgers = () => {
                     <TableCell>
                       <Box display="flex" alignItems="center" gap={1}>
                         {getBalanceIcon(ledger.opening_balance)}
-                        <Typography 
-                          fontWeight="bold" 
+                        <Typography
+                          fontWeight="bold"
                           color={getBalanceColor(ledger.opening_balance)}
+                          component="div"
                         >
                           ₹{Math.abs(ledger.opening_balance || 0).toLocaleString()}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" component="div">
                           {ledger.opening_balance >= 0 ? 'DR' : 'CR'}
                         </Typography>
                       </Box>
@@ -358,19 +349,19 @@ const Ledgers = () => {
                     </TableCell>
                     <TableCell>
                       {ledger.tally_guid ? (
-                        <Chip 
-                          label="Synced" 
-                          size="small" 
-                          color="success" 
+                        <Chip
+                          label="Synced"
+                          size="small"
+                          color="success"
                           variant="outlined"
                           icon={<CheckCircleIcon fontSize="small" />}
                           sx={{ borderRadius: 1 }}
                         />
                       ) : (
-                        <Chip 
-                          label="Not Synced" 
-                          size="small" 
-                          color="warning" 
+                        <Chip
+                          label="Not Synced"
+                          size="small"
+                          color="warning"
                           variant="outlined"
                           sx={{ borderRadius: 1 }}
                         />
@@ -380,30 +371,34 @@ const Ledgers = () => {
                       <TableCell>
                         <Box display="flex" gap={1}>
                           <Tooltip title="Edit">
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              onClick={() => {
-                                setFormData(ledger);
-                                setOpenForm(true);
-                              }}
-                              disabled={!isAdmin}
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
+                            <span>
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => {
+                                  setFormData(ledger);
+                                  setOpenForm(true);
+                                }}
+                                disabled={!isAdmin}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </span>
                           </Tooltip>
                           <Tooltip title="Delete">
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => {
-                                setLedgerToDelete(ledger);
-                                setDeleteDialog(true);
-                              }}
-                              disabled={!isAdmin}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
+                            <span>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => {
+                                  setLedgerToDelete(ledger);
+                                  setDeleteDialog(true);
+                                }}
+                                disabled={!isAdmin}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </span>
                           </Tooltip>
                         </Box>
                       </TableCell>
@@ -424,75 +419,72 @@ const Ledgers = () => {
             sx={{ borderTop: '1px solid', borderColor: 'divider' }}
           />
         </TableContainer>
+
+        <Dialog
+          open={openForm}
+          onClose={() => setOpenForm(false)}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{ sx: { borderRadius: 3 } }}
+        >
+          <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white' }}>
+            {formData ? 'Edit Ledger' : 'Create New Ledger'}
+          </DialogTitle>
+          <DialogContent sx={{ p: 3 }}>
+            <LedgerForm
+              initialData={formData}
+              onSubmit={formData ? (data) => console.log('Edit:', data) : handleAddLedger}
+              onCancel={() => setOpenForm(false)}
+              isEdit={!!formData}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={deleteDialog}
+          onClose={() => {
+            setDeleteDialog(false);
+            setLedgerToDelete(null);
+          }}
+          PaperProps={{ sx: { borderRadius: 3 } }}
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center" gap={1}>
+              <WarningIcon color="error" />
+              <span>Delete Ledger</span>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Typography paragraph component="div">
+              Are you sure you want to delete the ledger "{ledgerToDelete?.ledger_name}"?
+            </Typography>
+            <Alert severity="warning">
+              This action will delete the ledger from the database. 
+              {isAdmin && ' It will also delete from Tally ERP.'}
+            </Alert>
+          </DialogContent>
+          <DialogActions sx={{ p: 3, pt: 0 }}>
+            <Button
+              onClick={() => {
+                setDeleteDialog(false);
+                setLedgerToDelete(null);
+              }}
+              sx={{ borderRadius: 2 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteLedger}
+              variant="contained"
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ borderRadius: 2 }}
+            >
+              Delete Ledger
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
-
-      <Dialog
-        open={openForm}
-        onClose={() => setOpenForm(false)}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 3 } }}
-      >
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white' }}>
-          {formData ? 'Edit Ledger' : 'Create New Ledger'}
-        </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
-          <LedgerForm
-            initialData={formData}
-            onSubmit={formData ? 
-              (data) => console.log('Edit:', data) : 
-              handleAddLedger
-            }
-            onCancel={() => setOpenForm(false)}
-            isEdit={!!formData}
-          />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={deleteDialog}
-        onClose={() => {
-          setDeleteDialog(false);
-          setLedgerToDelete(null);
-        }}
-        PaperProps={{ sx: { borderRadius: 3 } }}
-      >
-        <DialogTitle>
-          <Box display="flex" alignItems="center" gap={1}>
-            <WarningIcon color="error" />
-            <span>Delete Ledger</span>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Typography paragraph>
-            Are you sure you want to delete the ledger "{ledgerToDelete?.ledger_name}"?
-          </Typography>
-          <Alert severity="warning">
-            This action will delete the ledger from the database. 
-            {isAdmin && ' It will also delete from Tally ERP.'}
-          </Alert>
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 0 }}>
-          <Button 
-            onClick={() => {
-              setDeleteDialog(false);
-              setLedgerToDelete(null);
-            }}
-            sx={{ borderRadius: 2 }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleDeleteLedger} 
-            variant="contained" 
-            color="error"
-            startIcon={<DeleteIcon />}
-            sx={{ borderRadius: 2 }}
-          >
-            Delete Ledger
-          </Button>
-        </DialogActions>
-      </Dialog>
     </MainLayout>
   );
 };

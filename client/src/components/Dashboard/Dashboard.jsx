@@ -7,34 +7,31 @@ import {
   Typography,
   Button,
   CircularProgress,
-  LinearProgress,
   Chip,
-  Stack,
-  Paper,
-  alpha,
 } from '@mui/material';
-import {
-  Sync as SyncIcon,
-  AccountBalance as LedgerIcon,
-  Receipt as InvoiceIcon,
-  TrendingUp as TrendingUpIcon,
-  Error as ErrorIcon,
-  CheckCircle as CheckCircleIcon,
-  Pending as PendingIcon,
-  ArrowUpward,
-  ArrowDownward,
-} from '@mui/icons-material';
+import { alpha } from '@mui/material/styles';
+
+import SyncIcon from '@mui/icons-material/Sync';
+import LedgerIcon from '@mui/icons-material/AccountBalance';
+import InvoiceIcon from '@mui/icons-material/Receipt';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ErrorIcon from '@mui/icons-material/Error';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PendingIcon from '@mui/icons-material/Pending';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+
 import MainLayout from '../Layout/MainLayout';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
+
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [stats, setStats] = useState(null);
-  const [syncLogs, setSyncLogs] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -42,13 +39,10 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsResponse, logsResponse] = await Promise.all([
+      const [statsResponse] = await Promise.all([
         api.get('/tally/dashboard-stats'),
-        api.get('/tally/sync-logs?limit=5'),
       ]);
-      
       setStats(statsResponse.data.data);
-      setSyncLogs(logsResponse.data.data.logs);
     } catch (error) {
       toast.error('Failed to fetch dashboard data');
     } finally {
@@ -60,17 +54,11 @@ const Dashboard = () => {
     setSyncing(true);
     try {
       let response;
-      switch (type) {
-        case 'ledgers':
-          response = await api.post('/tally/sync/ledgers');
-          break;
-        case 'invoices':
-          response = { data: { success: true, message: 'Please create invoices from Invoices page' } };
-          break;
-        default:
-          response = await api.post('/tally/sync/ledgers');
+      if (type === 'ledgers') {
+        response = await api.post('/tally/sync/ledgers');
+      } else {
+        response = { data: { success: true, message: 'Please create invoices from Invoices page' } };
       }
-      
       toast.success(response.data.message || 'Sync completed successfully');
       fetchDashboardData();
     } catch (error) {
@@ -80,44 +68,27 @@ const Dashboard = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'success': return 'success';
-      case 'failed': return 'error';
-      case 'in_progress': return 'warning';
-      default: return 'default';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'success': return <CheckCircleIcon fontSize="small" />;
-      case 'failed': return <ErrorIcon fontSize="small" />;
-      case 'in_progress': return <PendingIcon fontSize="small" />;
-      default: return null;
-    }
-  };
-
   const StatCard = ({ title, value, icon, color, trend, subtitle }) => (
     <Card>
       <CardContent>
         <Box display="flex" justifyContent="space-between" alignItems="flex-start">
           <Box>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Typography variant="h6" color="text.secondary" gutterBottom component="div">
               {title}
             </Typography>
-            <Typography variant="h3" fontWeight="bold">
+            <Typography variant="h3" fontWeight="bold" component="div">
               {value}
             </Typography>
-            {trend && (
-              <Chip
-                label={trend}
-                size="small"
-                sx={{ mt: 1 }}
-                color={trend.includes('+') ? 'success' : 'error'}
-                icon={trend.includes('+') ? <ArrowUpward /> : <ArrowDownward />}
-              />
-            )}
+           {trend && (
+  <Chip
+    label={trend}
+    size="small"
+    sx={{ mt: 1 }}
+    color={trend.includes('+') ? 'success' : 'error'}
+    icon={trend.includes('+') ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+  />
+)}
+
           </Box>
           <Box
             sx={{
@@ -131,7 +102,7 @@ const Dashboard = () => {
           </Box>
         </Box>
         {subtitle && (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }} component="div">
             {subtitle}
           </Typography>
         )}
@@ -152,15 +123,9 @@ const Dashboard = () => {
   return (
     <MainLayout>
       <Box sx={{ mb: 4 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Box>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Welcome back, {user?.username}
-            </Typography>
-           
-          </Box>
-        
-        </Box>
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          Welcome back, {user?.username}
+        </Typography>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} md={4}>
@@ -181,10 +146,10 @@ const Dashboard = () => {
                 >
                   <LedgerIcon sx={{ fontSize: 40, color: 'primary.main' }} />
                 </Box>
-                <Typography variant="h6" gutterBottom fontWeight="bold">
+                <Typography variant="h6" gutterBottom fontWeight="bold" component="div">
                   Sync Ledgers
                 </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
+                <Typography variant="body2" color="text.secondary" paragraph component="div">
                   sync ledger data from Tally to dashboard
                 </Typography>
                 <Button
@@ -198,7 +163,7 @@ const Dashboard = () => {
                   {syncing ? 'Syncing...' : 'Sync from Tally'}
                 </Button>
                 {!['admin', 'accountant'].includes(user?.role) && (
-                  <Typography variant="caption" color="warning.main" sx={{ mt: 1, display: 'block' }}>
+                  <Typography variant="caption" color="warning.main" sx={{ mt: 1, display: 'block' }} component="div">
                     Analyst role: View only
                   </Typography>
                 )}
@@ -224,10 +189,10 @@ const Dashboard = () => {
                 >
                   <InvoiceIcon sx={{ fontSize: 40, color: 'secondary.main' }} />
                 </Box>
-                <Typography variant="h6" gutterBottom fontWeight="bold">
+                <Typography variant="h6" gutterBottom fontWeight="bold" component="div">
                   Manage Invoices
                 </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
+                <Typography variant="body2" color="text.secondary" paragraph component="div">
                   Create and sync invoices with Tally ERP
                 </Typography>
                 <Button
@@ -263,10 +228,10 @@ const Dashboard = () => {
                 >
                   <TrendingUpIcon sx={{ fontSize: 40, color: 'success.main' }} />
                 </Box>
-                <Typography variant="h6" gutterBottom fontWeight="bold">
+                <Typography variant="h6" gutterBottom fontWeight="bold" component="div">
                   View Analytics
                 </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
+                <Typography variant="body2" color="text.secondary" paragraph component="div">
                   Visual insights and financial reports
                 </Typography>
                 <Button
@@ -283,10 +248,11 @@ const Dashboard = () => {
             </Card>
           </Grid>
         </Grid>
-        <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
+
+        <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }} component="div">
           Overview
         </Typography>
-        
+
         {stats && (
           <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
@@ -311,7 +277,6 @@ const Dashboard = () => {
               />
             </Grid>
 
-
             <Grid item xs={12} sm={6} md={3}>
               <StatCard
                 title="Total Amount"
@@ -324,7 +289,6 @@ const Dashboard = () => {
             </Grid>
           </Grid>
         )}
-
       </Box>
     </MainLayout>
   );
